@@ -10,15 +10,78 @@
 <meta property="og:description" content="Ingreso 13:30 hs (ser puntuales) · Obra de teatro · Juegos · Merienda">
 <meta property="og:image" content="invitacion.jpg">
 <style>
-  * { box-sizing:border-box; }
-  html, body { margin:0; background:#f4f2ec; }
-  main { max-width:560px; margin:0 auto; padding:12px; }
-  img { width:100%; height:auto; display:block; border-radius:12px; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #f4f2ec; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 560px; margin: 0 auto; padding: 12px; position: relative; }
+  img { width: 100%; height: auto; display: block; border-radius: 12px; }
+
+  /* Tapa con el botón: los celulares no dejan que la música arranque sola, hace falta un toque */
+  #tapa {
+    position: fixed; inset: 0; z-index: 10;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+    background: rgba(20, 30, 70, .55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    border: 0; width: 100%; cursor: pointer; color: #fff; padding: 24px;
+  }
+  #tapa .medalla { font-size: 84px; line-height: 1; animation: salto 1.2s ease-in-out infinite; }
+  #tapa .boton {
+    background: #f7c623; color: #1d2b4f; font-weight: 800; font-size: 1.35rem;
+    padding: 16px 26px; border-radius: 999px; box-shadow: 0 6px 20px rgba(0,0,0,.25);
+  }
+  #tapa .chico { font-size: .95rem; opacity: .9; }
+  @keyframes salto { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+  /* Botón para silenciar, arriba a la derecha */
+  #sonido {
+    position: fixed; top: 14px; right: 14px; z-index: 5;
+    width: 48px; height: 48px; border-radius: 50%; border: 0;
+    background: rgba(255,255,255,.9); font-size: 24px; box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    display: none; cursor: pointer;
+  }
 </style>
 </head>
 <body>
 <main>
   <img src="invitacion.jpg" alt="Invitación Olimpíadas Cedro 2026: ingreso 13:30 hs (ser puntuales), obra de teatro 'Las olimpíadas de la vida', juegos y merienda" width="1131" height="1600">
 </main>
+
+<button id="tapa" type="button" aria-label="Ver la invitación con música">
+  <span class="medalla">🏅</span>
+  <span class="boton">🎵 Tocá para ver la invitación</span>
+  <span class="chico">Olimpíadas Cedro 2026</span>
+</button>
+<button id="sonido" type="button" aria-label="Silenciar la música">🔊</button>
+
+<!-- Música: "Rock Intro" (Pixabay, licencia de contenido de Pixabay, uso gratuito) -->
+<audio id="musica" src="musica.mp3" preload="auto"></audio>
+
+<script>
+  const tapa = document.getElementById('tapa');
+  const musica = document.getElementById('musica');
+  const sonido = document.getElementById('sonido');
+
+  tapa.addEventListener('click', () => {
+    tapa.remove();
+    sonido.style.display = 'block';
+    musica.currentTime = 0;
+    musica.play().catch(() => { sonido.textContent = '🔇'; });
+  });
+
+  sonido.addEventListener('click', () => {
+    if (musica.paused) {
+      musica.play();
+      sonido.textContent = '🔊';
+      sonido.setAttribute('aria-label', 'Silenciar la música');
+    } else {
+      musica.pause();
+      sonido.textContent = '🔇';
+      sonido.setAttribute('aria-label', 'Escuchar la música');
+    }
+  });
+
+  musica.addEventListener('ended', () => {
+    sonido.textContent = '▶️';
+    sonido.setAttribute('aria-label', 'Escuchar otra vez');
+  });
+</script>
 </body>
 </html>
