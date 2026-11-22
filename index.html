@@ -30,6 +30,19 @@
   #tapa .chico { font-size: .95rem; opacity: .9; }
   @keyframes salto { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
 
+  /* Fecha y cuenta regresiva, abajo de la invitación */
+  .fecha {
+    margin: 14px 0 6px; padding: 18px 16px; border-radius: 16px; text-align: center;
+    background: #1d2b4f; color: #fff; box-shadow: 0 4px 14px rgba(0,0,0,.15);
+  }
+  .fecha .dia { font-size: 1.45rem; font-weight: 800; }
+  .fecha .hora { margin-top: 2px; font-size: 1.05rem; color: #f7c623; font-weight: 700; }
+  .cuenta { display: flex; justify-content: center; gap: 8px; margin-top: 14px; }
+  .cuenta div { background: #f7c623; color: #1d2b4f; border-radius: 12px; min-width: 64px; padding: 8px 6px; }
+  .cuenta b { display: block; font-size: 1.7rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .cuenta span { font-size: .75rem; font-weight: 700; text-transform: uppercase; }
+  .aviso { margin-top: 12px; font-size: 1.25rem; font-weight: 800; color: #f7c623; }
+
   /* Botón para silenciar, arriba a la derecha */
   #sonido {
     position: fixed; top: 14px; right: 14px; z-index: 5;
@@ -42,6 +55,18 @@
 <body>
 <main>
   <img src="invitacion.jpg" alt="Invitación Olimpíadas Cedro 2026: ingreso 13:30 hs (ser puntuales), obra de teatro 'Las olimpíadas de la vida', juegos y merienda" width="1131" height="1600">
+
+  <section class="fecha" aria-live="polite">
+    <div class="dia">📅 Miércoles 2 de diciembre</div>
+    <div class="hora">Ingreso 13:30 hs · ¡Ser puntuales!</div>
+    <div class="cuenta" id="cuenta">
+      <div><b id="d">–</b><span>días</span></div>
+      <div><b id="h">–</b><span>horas</span></div>
+      <div><b id="m">–</b><span>min</span></div>
+      <div><b id="s">–</b><span>seg</span></div>
+    </div>
+    <div class="aviso" id="aviso" hidden></div>
+  </section>
 </main>
 
 <button id="tapa" type="button" aria-label="Ver la invitación con música">
@@ -77,6 +102,30 @@
       sonido.setAttribute('aria-label', 'Escuchar la música');
     }
   });
+
+  // Cuenta regresiva hasta el ingreso: miércoles 2/12/2026 a las 13:30 (hora de Argentina)
+  const EVENTO = new Date('2026-12-02T13:30:00-03:00');
+  const FIN_DEL_DIA = new Date('2026-12-02T23:59:59-03:00');
+  const dos = n => String(n).padStart(2, '0');
+  function contar() {
+    const ahora = new Date();
+    const falta = EVENTO - ahora;
+    const aviso = document.getElementById('aviso');
+    if (falta > 0) {
+      const seg = Math.floor(falta / 1000);
+      document.getElementById('d').textContent = Math.floor(seg / 86400);
+      document.getElementById('h').textContent = dos(Math.floor(seg % 86400 / 3600));
+      document.getElementById('m').textContent = dos(Math.floor(seg % 3600 / 60));
+      document.getElementById('s').textContent = dos(seg % 60);
+      return;
+    }
+    document.getElementById('cuenta').hidden = true;
+    aviso.hidden = false;
+    aviso.textContent = ahora <= FIN_DEL_DIA ? '¡Hoy son las Olimpíadas! 🏅' : '¡Gracias por venir a las Olimpíadas! 🏅';
+    clearInterval(reloj);
+  }
+  const reloj = setInterval(contar, 1000);
+  contar();
 
   musica.addEventListener('ended', () => {
     sonido.textContent = '▶️';
